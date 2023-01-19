@@ -1,33 +1,50 @@
+import Array "mo:base/Array";
+import Buffer "mo:base/Buffer";
+import Text "mo:base/Text";
+import Char "mo:base/Char";
+import Nat "mo:base/Nat";
+import Int "mo:base/Int";
+import Iter "mo:base/Iter";
+
 actor {
-    
-    public func multiply(n : Nat, m: Nat) : async Nat {
-        return n * m;
+
+  public query func average_array(array : [Nat]) : async Int {
+    var s : Int = 0;
+    for (number in array.vals()) {
+      s += number;
     };
 
-    public func volume(n : Nat) : async Nat {
-        return n * n * n ;
-    };
-    
-    public func hours_to_minutes(n : Nat) : async Nat {
-        return n * 60 ;
+    return s
+  
+  };
+
+  public query func count_character(t: Text, c: Char) : async Nat {
+    var s : Nat = 0;
+    for (string in Text.toIter(t)) {
+      if(string == c){
+          s := s + 1;
+      };
     };
 
-    var counter : Nat = 0;
+    return s
+  
+  };
 
-    public func set_counter(n : Nat) : async () {
-        counter := n; 
-    };
+  public query func factorial (n: Nat) : async Nat {
+    var n : Nat = 0;
+    var count : Nat = 0;
+    loop {
+      count += 1;
+      n += count;
+      if(count >= n) {
+        return n;
+      }
+    }
+  };
 
-    public func get_counter() : async Nat {
-        return counter;
-    };
-
-    public func test_divide(n : Nat, m: Nat) : async Bool {
-       return n % m == 0;
-    };
-
-    public func is_even(n : Nat) : async Bool {
-        return n % 2 == 0;
-    };
+  public query func number_of_words (text: Text) : async Nat {
+    let w = Text.split(text, #char ' ');
+    return Iter.size<Text>(w);
+  };
 
 };

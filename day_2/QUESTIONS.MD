@@ -11,7 +11,13 @@ A// the expected voting power is 14.24.
 A// the error in the code is the import nat is not specified
 
 5 What is wrong with the following code?
-A//
+A//the code is assigned with var, and in the sintaxis is with let and the type change the array to inmutable
+
+  let languages : [Text] = [ "English", "German", "Chinese", "Japanese", "French"];
+
+  public func show_languages(language : Text) : async [Text] {
+    return (languages);
+  };
 
 6 What is wrong with the following code?
-A//
+A//add importation in the code import Array "mo:base/Array";
