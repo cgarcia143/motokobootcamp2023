@@ -33,7 +33,7 @@
     <h1 class="slogan">Create a proposal</h1>
     <input
       bind:value={choosenproposal}
-      placeholder="Input your proposal summary here"
+      placeholder=""
     />
     <button on:click={handleCreateClick(choosenproposal)}>Create!</button>
     {#await promise}

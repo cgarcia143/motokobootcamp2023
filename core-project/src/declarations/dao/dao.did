@@ -1,39 +1,45 @@
-type Subaccount = vec nat8;
 type Proposal = 
  record {
-   creator: Account;
-   payload: text;
-   status: variant {
-             Open;
-             Passed;
-             Rejected;
-           };
-   timestamp: int;
+   maxVotes: nat;
+   minVotes: nat;
+   open: bool;
+   title: text;
+   user: principal;
+   votersList: List;
    votes: record {
-            nat;
-            nat;
+            no: nat;
+            yes: nat;
           };
  };
-type Account = 
- record {
-   owner: principal;
-   subaccount: opt Subaccount;
- };
-service : {
-  get_all_proposals: () -> (vec record {
-                                  int;
-                                  Proposal;
-                                }) query;
-  get_proposal: (int) -> (opt Proposal) query;
-  submit_proposal: (text) -> (variant {
-                                Err: text;
-                                Ok: Proposal;
-                              });
-  vote: (int, bool) -> (variant {
+type List = 
+ opt record {
+       principal;
+       List;
+     };
+type Id = nat;
+type Backend = 
+ service {
+   get_all_proposals: () -> (vec record {
+                                   Id;
+                                   Proposal;
+                                 }) query;
+   get_proposal: (Id) -> (opt Proposal) query;
+   id: () -> (principal);
+   modiFied: (nat, nat, nat) -> (variant {
+                                   Err: text;
+                                   Ok: Proposal;
+                                 });
+   nameMbt: () -> (text);
+   submit_proposal: (text) -> (variant {
+                                 Err: text;
+                                 Ok: Proposal;
+                               });
+   totalMbt: () -> (nat);
+   user_validation: (principal) -> (bool);
+   vote: (Id, bool) -> (variant {
                           Err: text;
-                          Ok: record {
-                                nat;
-                                nat;
-                              };
+                          Ok: text;
                         });
-}
+   whoami: () -> (principal);
+ };
+service : () -> Backend

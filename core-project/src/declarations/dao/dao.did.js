@@ -1,37 +1,44 @@
 export const idlFactory = ({ IDL }) => {
-  const Subaccount = IDL.Vec(IDL.Nat8);
-  const Account = IDL.Record({
-    'owner' : IDL.Principal,
-    'subaccount' : IDL.Opt(Subaccount),
-  });
+  const List = IDL.Rec();
+  const Id = IDL.Nat;
+  List.fill(IDL.Opt(IDL.Tuple(IDL.Principal, List)));
   const Proposal = IDL.Record({
-    'status' : IDL.Variant({
-      'Passed' : IDL.Null,
-      'Open' : IDL.Null,
-      'Rejected' : IDL.Null,
-    }),
-    'creator' : Account,
-    'votes' : IDL.Tuple(IDL.Nat, IDL.Nat),
-    'timestamp' : IDL.Int,
-    'payload' : IDL.Text,
+    'title' : IDL.Text,
+    'minVotes' : IDL.Nat,
+    'votes' : IDL.Record({ 'no' : IDL.Nat, 'yes' : IDL.Nat }),
+    'open' : IDL.Bool,
+    'user' : IDL.Principal,
+    'votersList' : List,
+    'maxVotes' : IDL.Nat,
   });
-  return IDL.Service({
+  const Backend = IDL.Service({
     'get_all_proposals' : IDL.Func(
         [],
-        [IDL.Vec(IDL.Tuple(IDL.Int, Proposal))],
+        [IDL.Vec(IDL.Tuple(Id, Proposal))],
         ['query'],
       ),
-    'get_proposal' : IDL.Func([IDL.Int], [IDL.Opt(Proposal)], ['query']),
+    'get_proposal' : IDL.Func([Id], [IDL.Opt(Proposal)], ['query']),
+    'id' : IDL.Func([], [IDL.Principal], []),
+    'modiFied' : IDL.Func(
+        [IDL.Nat, IDL.Nat, IDL.Nat],
+        [IDL.Variant({ 'Ok' : Proposal, 'Err' : IDL.Text })],
+        [],
+      ),
+    'nameMbt' : IDL.Func([], [IDL.Text], []),
     'submit_proposal' : IDL.Func(
         [IDL.Text],
         [IDL.Variant({ 'Ok' : Proposal, 'Err' : IDL.Text })],
         [],
       ),
+    'totalMbt' : IDL.Func([], [IDL.Nat], []),
+    'user_validation' : IDL.Func([IDL.Principal], [IDL.Bool], []),
     'vote' : IDL.Func(
-        [IDL.Int, IDL.Bool],
-        [IDL.Variant({ 'Ok' : IDL.Tuple(IDL.Nat, IDL.Nat), 'Err' : IDL.Text })],
+        [Id, IDL.Bool],
+        [IDL.Variant({ 'Ok' : IDL.Text, 'Err' : IDL.Text })],
         [],
       ),
+    'whoami' : IDL.Func([], [IDL.Principal], []),
   });
+  return Backend;
 };
 export const init = ({ IDL }) => { return []; };

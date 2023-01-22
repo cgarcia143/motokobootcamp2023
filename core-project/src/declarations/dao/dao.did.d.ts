@@ -1,30 +1,35 @@
 import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
 
-export interface Account {
-  'owner' : Principal,
-  'subaccount' : [] | [Subaccount],
-}
-export interface Proposal {
-  'status' : { 'Passed' : null } |
-    { 'Open' : null } |
-    { 'Rejected' : null },
-  'creator' : Account,
-  'votes' : [bigint, bigint],
-  'timestamp' : bigint,
-  'payload' : string,
-}
-export type Subaccount = Uint8Array;
-export interface _SERVICE {
-  'get_all_proposals' : ActorMethod<[], Array<[bigint, Proposal]>>,
+export interface Backend {
+  'get_all_proposals' : ActorMethod<[], Array<[Id, Proposal]>>,
+  'get_proposal' : ActorMethod<[Id], [] | [Proposal]>,
+  'id' : ActorMethod<[], Principal>,
+  'modiFied' : ActorMethod<
+    [bigint, bigint, bigint],
+    { 'Ok' : Proposal } |
+      { 'Err' : string }
+  >,
+  'nameMbt' : ActorMethod<[], string>,
   'submit_proposal' : ActorMethod<
     [string],
     { 'Ok' : Proposal } |
-      { 'Err' : string },
+      { 'Err' : string }
   >,
-  'vote' : ActorMethod<
-    [bigint, boolean],
-    { 'Ok' : [bigint, bigint] } |
-      { 'Err' : string },
-  >,
+  'totalMbt' : ActorMethod<[], bigint>,
+  'user_validation' : ActorMethod<[Principal], boolean>,
+  'vote' : ActorMethod<[Id, boolean], { 'Ok' : string } | { 'Err' : string }>,
+  'whoami' : ActorMethod<[], Principal>,
 }
+export type Id = bigint;
+export type List = [] | [[Principal, List]];
+export interface Proposal {
+  'title' : string,
+  'minVotes' : bigint,
+  'votes' : { 'no' : bigint, 'yes' : bigint },
+  'open' : boolean,
+  'user' : Principal,
+  'votersList' : List,
+  'maxVotes' : bigint,
+}
+export interface _SERVICE extends Backend {}
