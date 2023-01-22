@@ -35,7 +35,6 @@ type Backend =
                                  Ok: Proposal;
                                });
    totalMbt: () -> (nat);
-   user_validation: (principal) -> (bool);
    vote: (Id, bool) -> (variant {
                           Err: text;
                           Ok: text;

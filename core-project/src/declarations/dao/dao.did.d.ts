@@ -17,7 +17,6 @@ export interface Backend {
       { 'Err' : string }
   >,
   'totalMbt' : ActorMethod<[], bigint>,
-  'user_validation' : ActorMethod<[Principal], boolean>,
   'vote' : ActorMethod<[Id, boolean], { 'Ok' : string } | { 'Err' : string }>,
   'whoami' : ActorMethod<[], Principal>,
 }

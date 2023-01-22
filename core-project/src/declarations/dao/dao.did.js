@@ -31,7 +31,6 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'totalMbt' : IDL.Func([], [IDL.Nat], []),
-    'user_validation' : IDL.Func([IDL.Principal], [IDL.Bool], []),
     'vote' : IDL.Func(
         [Id, IDL.Bool],
         [IDL.Variant({ 'Ok' : IDL.Text, 'Err' : IDL.Text })],

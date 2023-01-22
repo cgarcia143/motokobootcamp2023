@@ -1,6 +1,8 @@
 import Text "mo:base/Text";
 import HashMap "mo:base/HashMap";
 import Option "mo:base/Option";
+import Result "mo:base/Result";
+import CertifiedData "mo:base/CertifiedData";
 
 actor {
     public type HeaderField = (Text, Text);
@@ -42,29 +44,45 @@ actor {
 
     let BadRequest : HttpResponse = {
         body = Text.encodeUtf8("Error: not found");
-        headers = [];
+        headers = [("content-type", "text/plain") ];
         status_code = 404;
         streaming_strategy = null;
     };
 
-    private func update_Title(t : ?Text) : (){
-        titleText := Option.get(t , titleText);
+    func main_(): Blob {
+        return Text.encodeUtf8 (
+        "<html><head><title>" # titleText # "</title></head><body>" # titleText # "</body></html>"
+        )
+    };
+
+    public func update_Title(titles : Text) : async Result.Result<Text,Text>{
+        try{
+            titleText := titles;
+            return #ok("Update successfull");
+        }catch err{
+            return #err("Failed update");
+        };
+    };
+
+    private func removeQuery(str: Text): Text {
+        return Option.unwrap(Text.split(str, #char '?').next());
     };
 
     public query func http_request(req : HttpRequest): async HttpResponse{
-        switch(req.method){
-            case("GET"){
-                return({
-                    body = Text.encodeUtf8(titleText);
-                    headers = [];
-                    status_code = 200;
-                    streaming_strategy = null;
-                });
+
+        let path = removeQuery(req.url);
+
+        if(path == "/") {
+            return {
+                body = main_();
+                headers = [("content-type", "text/html; charset=utf-8")];
+                status_code = 200;
+                streaming_strategy = null;
             };
-            case(_){
-                return(BadRequest);
-            }
+        }else {
+            return(BadRequest);
         }
+        
     };
 
 

@@ -14,6 +14,8 @@ export interface HttpResponse {
   'streaming_strategy' : [] | [StreamingStrategy],
   'status_code' : number,
 }
+export type Result = { 'ok' : string } |
+  { 'err' : string };
 export type StreamingCallback = ActorMethod<
   [StreamingCallbackToken],
   StreamingCallbackResponse
@@ -35,4 +37,5 @@ export type StreamingStrategy = {
   };
 export interface _SERVICE {
   'http_request' : ActorMethod<[HttpRequest], HttpResponse>,
+  'update_Title' : ActorMethod<[string], Result>,
 }

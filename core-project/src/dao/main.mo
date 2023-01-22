@@ -8,6 +8,7 @@ import Nat "mo:base/Nat";
 import Hash "mo:base/Hash";
 import Error "mo:base/Error";
 import List "mo:base/List";
+import Int "mo:base/Int";
 
 shared ({ caller = owner }) actor class Backend() = {
 
@@ -24,27 +25,26 @@ shared ({ caller = owner }) actor class Backend() = {
         };
     };
 
-    var lastProposal: Proposal = {
-        user = Principal.fromText("im2ae-jd6jx-vb4jw-d7ewc-g4lac-s6ghl-td23j-6ecje-hoqjk-xruqs-eae");
-        title = "Motoko2022";
-        minVotes = 1;
-        maxVotes = 100;
-        open = false;
-        votersList = List.nil<Principal>();
-        votes = {
-            yes = 100;
-            no = 0; 
-        };
+    type Neuron = {
+        creator: Principal;
+        state: Bool;
+        dissolve: Int;
     };
 
     type Id = Nat; 
-    stable var creator : Principal = owner; 
-    // TO DEFINE;
+    stable var creator : Principal = owner;
+
+    // TO DEFINE PORPOSALS;
     stable var arraData: [(Id,Proposal)] = [];
     var proporsals = HashMap.fromIter<Id, Proposal>(arraData.vals(),1, Nat.equal, Hash.hash);
     stable var postIdCount: Id = 0;
 
+    // TO DEFINE NEURONS ;
+    stable var neuronsData: [(Id,Proposal)] = [];
+    var neurons = HashMap.fromIter<Id, Proposal>(arraData.vals(),1, Nat.equal, Hash.hash);
+
     let MBT : actor { icrc1_name  : () -> async Text; icrc1_balance_of  : ({owner:Principal; subaccount: ?[Nat8]}) -> async Nat } = actor ("db3eq-6iaaa-aaaah-abz6a-cai"); 
+    let webPage : actor { update_Title  : (text: Text) -> async () } = actor ("2g6ts-laaaa-aaaan-qc2mq-cai"); 
 
     public func nameMbt() : async Text {
         let name: Text = await MBT.icrc1_name();
@@ -56,12 +56,11 @@ shared ({ caller = owner }) actor class Backend() = {
         return total;
     };
 
-
     public shared({caller = usuario}) func submit_proposal(this_payload : Text) : async {#Ok : Proposal; #Err : Text} {
 
-        if(Principal.isAnonymous(usuario)) {
-            return #Err("Anonymous caller");
-        };
+        // if(Principal.isAnonymous(usuario)) {
+        //     return #Err("Anonymous caller");
+        // };
 
         let id: Id = postIdCount;
         postIdCount+=1;
@@ -115,16 +114,6 @@ shared ({ caller = owner }) actor class Backend() = {
         }
     };
 
-    public func user_validation(user: Principal) : async Bool {
-        let balance = await totalMbt();
-        if(balance >= 1){
-            true;
-        }else {
-            false;
-        };
-        
-    };
-
     public shared({caller = user}) func vote(proposal_id : Id, vote : Bool) : async {#Ok : Text; #Err : Text} {
         let balance = await totalMbt();
         let proporsal: ?Proposal = proporsals.get(proposal_id);
@@ -160,6 +149,7 @@ shared ({ caller = owner }) actor class Backend() = {
                             opens := true;
                         }else {
                             //webpage
+                            ignore webPage.update_Title(proporsal.title);
                             opens := false;
                         };
                         let listVoterUpdate : List.List<Principal> = List.push(user, proporsal.votersList);
@@ -176,8 +166,6 @@ shared ({ caller = owner }) actor class Backend() = {
                                 no = noV;
                             };
                         };
-
-                        lastProposal := updateProporsal;
                         proporsals.put(proposal_id , updateProporsal);
                         return #Ok("Successfull Vote");
                     }else {
@@ -208,6 +196,9 @@ shared ({ caller = owner }) actor class Backend() = {
     public func id() : async Principal {
         return await whoami();
     };
+
+    //Neurons System
+
 
     system func preupgrade(){
         arraData := Iter.toArray<(Nat,Proposal)>(proporsals.entries());

@@ -17,6 +17,11 @@ type StreamingCallbackResponse =
  };
 type StreamingCallback = func (StreamingCallbackToken) ->
                           (StreamingCallbackResponse) query;
+type Result = 
+ variant {
+   err: text;
+   ok: text;
+ };
 type HttpResponse = 
  record {
    body: blob;
@@ -38,4 +43,5 @@ type HeaderField =
  };
 service : {
   http_request: (HttpRequest) -> (HttpResponse) query;
+  update_Title: (text) -> (Result);
 }
