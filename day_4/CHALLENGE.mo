@@ -5,46 +5,19 @@ import Char "mo:base/Char";
 import Nat "mo:base/Nat";
 import Int "mo:base/Int";
 import Iter "mo:base/Iter";
+import HashMap "mo:base/HashMap";
+import Principal "mo:base/Principal";
 
 actor {
 
-  public query func average_array(array : [Nat]) : async Int {
-    var s : Int = 0;
-    for (number in array.vals()) {
-      s += number;
+    public query ({ caller }) func is_anynomous() : async Bool {
+        Principal.isAnonymous(caller);
     };
 
-    return s
-  
-  };
-
-  public query func count_character(t: Text, c: Char) : async Nat {
-    var s : Nat = 0;
-    for (string in Text.toIter(t)) {
-      if(string == c){
-          s := s + 1;
-      };
+    let users = HashMap.HashMap<Principal, Text>(0, Principal.equal, Principal.hash);
+    
+    public query func get_usernames() : async [(Principal, Text)] {
+        Iter.toArray(users.entries());
     };
-
-    return s
-  
-  };
-
-  public query func factorial (n: Nat) : async Nat {
-    var n : Nat = 0;
-    var count : Nat = 0;
-    loop {
-      count += 1;
-      n += count;
-      if(count >= n) {
-        return n;
-      }
-    }
-  };
-
-  public query func number_of_words (text: Text) : async Nat {
-    let w = Text.split(text, #char ' ');
-    return Iter.size<Text>(w);
-  };
 
 };
